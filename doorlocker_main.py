@@ -11,6 +11,8 @@ from linebot.models import (
         )
 #app config
 import app_env
+#controller communication
+from telnetlib import Telnet
 
 app = Flask(__name__)
 
@@ -108,14 +110,23 @@ def operate_door(order, reply_token):
                 TextSendMessage(text=message)
                 )
 
-#TODO implement
+#actual door operations
 def exec_door_open():
+    communicate_controller("-o\n".encode())
     app.logger.debug("door opened.")
-    pass
 
 def exec_door_close():
+    communicate_controller("-c\n".encode())
     app.logger.debug("door closed.")
-    pass
+
+def communicate_controller(command):
+    if command.decode() == "-c\n" or command.decode() == "-o\n":
+        with Telnet("localhost", 8080) as controller:
+            app.logger.debug(str(controller.read_until("input.\n".encode())))
+            controller.write(command)
+            app.logger.debug(str(controller.read_all()))
+    else:
+        pass
 
 #@app.errorhandler(404)
 #def not_found(e):
