@@ -22,14 +22,14 @@ servo_shutdown(){
 
 door_close(){
 	echo -n "door closing..."
-	
+
 	#pwm <pin> <val(0-1023)>
 	gpio -g pwm 18 22 #1.3msec
 	#gpio -g pwm 18 26 #max?
 	sleep 1
 	gpio -g pwm 18 10
 	sleep 1
-	
+
 	echo -e "[\e[32mOK\e[m]"
 }
 door_open(){
@@ -69,22 +69,34 @@ parse_args(){
 	done
 }
 
+main_operation(){
+	if [[ -n "$oflag" ]]; then
+		servo_setup
+		door_open
+		servo_shutdown
+	fi
+
+	if [[ -n "$cflag" ]]; then
+		servo_setup
+		door_close
+		servo_shutdown
+	fi
+}
+
 #main
 
 parse_args $@
 echo "door operation start."
 
-if [[ -n "$oflag" ]]; then
-	servo_setup
-	door_open
-	servo_shutdown
-fi
+main_operation
 
-if [[ -n "$cflag" ]]; then
-	servo_setup
-	door_close
-	servo_shutdown
-fi
+echo "no options specified. listening to standard input."
+
+read operation
+
+parse_args $operation
+
+main_operation
 
 echo "door operation done."
 
