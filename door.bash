@@ -37,6 +37,8 @@ door_open(){
 
 	gpio -g pwm 18 1 #0.2msec
 	sleep 1
+	gpio -g pwm 18 10
+	sleep 1
 
 	echo -e "[\e[32mOK\e[m]"
 }
@@ -55,6 +57,9 @@ parse_args(){
 				if [[ "$1" =~ 'c' ]]; then
 					cflag='-c'
 				fi
+				if [[ "$1" =~ 'r' ]]; then
+					rflag='-r'
+				fi
 				if [[ "$1" =~ 'h' ]]; then
 					hflag='-h'
 				fi
@@ -70,16 +75,29 @@ parse_args(){
 }
 
 main_operation(){
-	if [[ -n "$oflag" ]]; then
-		servo_setup
-		door_open
-		servo_shutdown
-	fi
-
-	if [[ -n "$cflag" ]]; then
+	flag_done=false
+	if [[ -n "$oflag" && -n "$rflag" ]]; then
 		servo_setup
 		door_close
 		servo_shutdown
+		flag_done=true
+	elif [[ -n "$oflag" ]]; then
+		servo_setup
+		door_open
+		servo_shutdown
+		flag_done=true
+	fi
+
+	if [[ -n "$cflag" && -n "$rflag" ]]; then
+		servo_setup
+		door_open
+		servo_shutdown
+		flag_done=true
+	elif [[ -n "$cflag" ]]; then
+		servo_setup
+		door_close
+		servo_shutdown
+		flag_done=true
 	fi
 }
 
@@ -90,13 +108,15 @@ echo "door operation start."
 
 main_operation
 
-echo "no options specified. listening to standard input."
+if [[ "$flag_done" = false ]]; then
+	echo "no options specified. listening to standard input."
 
-read operation
+	read operation1 operation2
+	operations=($operation1 $operation2)
+	parse_args $operations
 
-parse_args $operation
-
-main_operation
+	main_operation
+fi
 
 echo "door operation done."
 
