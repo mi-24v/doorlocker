@@ -102,6 +102,12 @@ def operate_door(order, reply_token):
         elif order == app_env.ORDER_DOOR_CLOSE:
             exec_door_close()
             message = app_env.DONE_DOOR_CLOSE
+        elif order == app_env.ORDER_DOOR_OPEN_REVERSED:
+            exec_door_open_reversed()
+            message = app_env.DONE_DOOR_OPEN
+        elif order == app_env.ORDER_DOOR_CLOSE_REVERSED:
+            exec_door_close_reversed()
+            message = app_env.DONE_DOOR_CLOSE
     else:
         pass
     if flag:
@@ -119,8 +125,16 @@ def exec_door_close():
     communicate_controller("-c\n".encode())
     app.logger.debug("door closed.")
 
+def exec_door_open_reversed():
+    communicate_controller("-ro\n".encode())
+    app.logger.debug("door opened(reversed).")
+
+def exec_door_close_reversed():
+    communicate_controller("-rc\n".encode())
+    app.logger.debug("door closed(reversed).")
+
 def communicate_controller(command):
-    if command.decode() == "-c\n" or command.decode() == "-o\n":
+    if command.decode() == "-c\n" or command.decode() == "-o\n" or command.decode() == "-ro\n" or command.decode() == "-rc\n":
         with Telnet("localhost", 8080) as controller:
             app.logger.debug(str(controller.read_until("input.\n".encode())))
             controller.write(command)

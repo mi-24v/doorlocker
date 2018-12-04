@@ -5,6 +5,8 @@ import dotenv
 #general config
 ORDER_DOOR_OPEN = 7061
 ORDER_DOOR_CLOSE = 6551
+ORDER_DOOR_OPEN_REVERSED = 8446
+ORDER_DOOR_CLOSE_REVERSED = 5599
 ORDER_INVALID = 0
 
 DOOR_APPROACHING = "ドア接近を確認しました。"
@@ -19,7 +21,13 @@ DONE_DOOR_CLOSE = "ドアを閉めました。"
 
 MESSAGE_KEYWORDS = {
         "ドアを開けて": ORDER_DOOR_OPEN,
-        "ドアを閉めて": ORDER_DOOR_CLOSE
+        "ドアを閉めて": ORDER_DOOR_CLOSE,
+        "開かずのドアを開けて": ORDER_DOOR_OPEN_REVERSED,
+        "開かずのドアを閉めて": ORDER_DOOR_CLOSE_REVERSED,
+        "1o": ORDER_DOOR_OPEN,
+        "1c": ORDER_DOOR_CLOSE,
+        "2o": ORDER_DOOR_OPEN_REVERSED,
+        "2c": ORDER_DOOR_CLOSE_REVERSED
         }
 
 #create dotenv path from current dir
