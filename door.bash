@@ -43,6 +43,18 @@ door_open(){
 	echo -e "[\e[32mOK\e[m]"
 }
 
+door_open_via_serial(){
+	echo -n "door opening..."
+	echo 1 > /dev/ttyAMA0
+	echo -e "[\e[32mOK\e[m]"
+}
+
+door_close_via_serial(){
+	echo -n "door closing..."
+	echo 2 > /dev/ttyAMA0
+	echo -e "[\e[32mOK\e[m]"
+}
+
 parse_args(){
 	declare -i argc=0
 	declare -a argv=()
@@ -59,6 +71,9 @@ parse_args(){
 				fi
 				if [[ "$1" =~ 'r' ]]; then
 					rflag='-r'
+				fi
+				if [[ "$1" =~ 's' ]]; then
+					sflag='-s'
 				fi
 				if [[ "$1" =~ 'h' ]]; then
 					hflag='-h'
@@ -81,6 +96,9 @@ main_operation(){
 		door_close
 		servo_shutdown
 		flag_done=true
+	elif [[ -n "$oflag" && -n "$sflag" ]]; then
+		door_open_via_serial
+		flag_done=true
 	elif [[ -n "$oflag" ]]; then
 		servo_setup
 		door_open
@@ -92,6 +110,9 @@ main_operation(){
 		servo_setup
 		door_open
 		servo_shutdown
+		flag_done=true
+	elif [[ -n "$cflag" && -n "$sflag" ]]; then
+		door_close_via_serial
 		flag_done=true
 	elif [[ -n "$cflag" ]]; then
 		servo_setup
