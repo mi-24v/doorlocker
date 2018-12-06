@@ -56,16 +56,17 @@ def handle_beacon(event):
         confirm_message = TemplateSendMessage(
                 alt_text = app_env.DOOR_APPROACHING,
                 template = ConfirmTemplate(
-                    text = app_env.DOOR_CLOSE_CONFIRM,
+                    text = app_env.DOOR_OPERATION_CONFIRM,
                     actions = [
                         PostbackAction(
                             label = app_env.DOOR_OPEN_REPLY_OK_LABEL,
                             text = app_env.DOOR_OPEN_REPLY_OK,
                             data = str(app_env.ORDER_DOOR_OPEN)
                             ),
-                        MessageAction(
-                            label = app_env.DOOR_OPEN_REPLY_NO_LABEL,
-                            text = app_env.DOOR_OPERATION_CANCEL
+                        PostbackAction(
+                            label = app_env.DOOR_CLOSE_REPLY_OK_LABEL,
+                            text = app_env.DOOR_CLOSE_REPLY_OK,
+                            data = str(app_env.ORDER_DOOR_CLOSE)
                             )
                         ]
                     )
@@ -85,6 +86,8 @@ def handle_postback(event):
     except TypeError:
         pass
     if data is not None and data == app_env.ORDER_DOOR_OPEN:
+        operate_door(data, event.reply_token)
+    elif data is not None and data == app_env.ORDER_DOOR_CLOSE:
         operate_door(data, event.reply_token)
     else:
         pass
@@ -118,11 +121,11 @@ def operate_door(order, reply_token):
 
 #actual door operations
 def exec_door_open():
-    communicate_controller("-o\n".encode())
+    communicate_controller("-os\n".encode())
     app.logger.debug("door opened.")
 
 def exec_door_close():
-    communicate_controller("-c\n".encode())
+    communicate_controller("-cs\n".encode())
     app.logger.debug("door closed.")
 
 def exec_door_open_reversed():
@@ -134,7 +137,7 @@ def exec_door_close_reversed():
     app.logger.debug("door closed(reversed).")
 
 def communicate_controller(command):
-    if command.decode() == "-c\n" or command.decode() == "-o\n" or command.decode() == "-ro\n" or command.decode() == "-rc\n":
+    if command.decode() == "-cs\n" or command.decode() == "-os\n" or command.decode() == "-ro\n" or command.decode() == "-rc\n":
         with Telnet("localhost", 8080) as controller:
             app.logger.debug(str(controller.read_until("input.\n".encode())))
             controller.write(command)
