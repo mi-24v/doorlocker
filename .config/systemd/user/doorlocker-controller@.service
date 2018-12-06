@@ -1,0 +1,8 @@
+[Unit]
+Description=auto door locker contoll service service
+
+[Service]
+ExecStart=%h/doorlocker/door.bash
+StandardInput=socket
+StandardOutput=socket
+
