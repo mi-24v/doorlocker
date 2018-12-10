@@ -45,13 +45,13 @@ door_open(){
 
 door_open_via_serial(){
 	echo -n "door opening..."
-	echo 1 > /dev/ttyAMA0
+	echo open > /dev/ttyAMA0
 	echo -e "[\e[32mOK\e[m]"
 }
 
 door_close_via_serial(){
 	echo -n "door closing..."
-	echo 2 > /dev/ttyAMA0
+	echo close > /dev/ttyAMA0
 	echo -e "[\e[32mOK\e[m]"
 }
 
