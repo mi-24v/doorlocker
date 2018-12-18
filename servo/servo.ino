@@ -1,7 +1,7 @@
 #include <Servo.h>
 
 Servo myservo;
-int16_t data;
+String data;
 
 void setup(void)
 {
@@ -11,14 +11,15 @@ void setup(void)
 
 void loop(void)
 {
+	data = "";
 	if(Serial.available())
 	{
-		data = Serial.read();
+		data = Serial.readString();
 		Serial.print("data arrived:");
 		Serial.println(data);
 	}
 
-	if(data == 49)//open(ascii "1")の時
+	if(data.startsWith("open"))//"open*"の時
 	{
 		//open
 		Serial.println("open START");
@@ -28,7 +29,7 @@ void loop(void)
 		//delay(50);
 		Serial.println("open OK");
 	}
-	else if(data == 50)//close(ascii "2")の時
+	else if(data.startsWith("close"))//"close*"の時
 	{
 		//close
 		Serial.println("close START");
