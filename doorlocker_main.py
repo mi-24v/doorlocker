@@ -4,7 +4,7 @@ from linebot import (
         LineBotApi, WebhookHandler
         )
 from linebot.exceptions import (
-        InvalidSignatureError
+        InvalidSignatureError, LineBotApiError
         )
 from linebot.models import (
         MessageEvent, BeaconEvent, PostbackEvent, TextMessage, TextSendMessage, TemplateSendMessage, ConfirmTemplate, PostbackAction, MessageAction
@@ -44,11 +44,20 @@ def webhook():
 def doge():
     return render_template("index.html")
 
+#logging username
+def dump_username(source):
+    try:
+        profile = line_bot.get_profile(source.user_id)
+        app.logger.info("user name:{}".format(profile.display_name))
+    except LineBotApiError:
+        app.logger.warn("could not get username.")
+
 #Webhook event handlers
 @webhook_handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     order = app_env.MESSAGE_KEYWORDS.get(event.message.text, app_env.ORDER_INVALID)
     operate_door(order, event.reply_token)
+    dump_username(event.source)
 
 @webhook_handler.add(BeaconEvent)
 def handle_beacon(event):
@@ -91,6 +100,7 @@ def handle_postback(event):
         operate_door(data, event.reply_token)
     else:
         pass
+    dump_username(event.source)
 
 #door operations
 def operate_door(order, reply_token):
