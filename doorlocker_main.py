@@ -84,6 +84,7 @@ def handle_beacon(event):
                 event.reply_token,
                 confirm_message
                 )
+        dump_username(event.source)
     else:
         pass
 
