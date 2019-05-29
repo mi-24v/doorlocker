@@ -37,6 +37,8 @@ def webhook():
     except InvalidSignatureError:
         app.logger.warn("invalid X-Line-Signature found.")
         abort(400)
+    except:
+        abort(500)
 
     return 'OK'
 
@@ -110,20 +112,23 @@ def operate_door(order, reply_token):
     flag = False
     if order != app_env.ORDER_INVALID:
         flag = True
-        if order == app_env.ORDER_DOOR_OPEN:
-            exec_door_open()
-            message = app_env.DONE_DOOR_OPEN
-        elif order == app_env.ORDER_DOOR_CLOSE:
-            exec_door_close()
-            message = app_env.DONE_DOOR_CLOSE
-        elif order == app_env.ORDER_DOOR_OPEN_REVERSED:
-            exec_door_open_reversed()
-            message = app_env.DONE_DOOR_OPEN
-        elif order == app_env.ORDER_DOOR_CLOSE_REVERSED:
-            exec_door_close_reversed()
-            message = app_env.DONE_DOOR_CLOSE
-    else:
-        pass
+        try:
+            if order == app_env.ORDER_DOOR_OPEN:
+                exec_door_open()
+                message = app_env.DONE_DOOR_OPEN
+            elif order == app_env.ORDER_DOOR_CLOSE:
+                exec_door_close()
+                message = app_env.DONE_DOOR_CLOSE
+            elif order == app_env.ORDER_DOOR_OPEN_REVERSED:
+                exec_door_open_reversed()
+                message = app_env.DONE_DOOR_OPEN
+            elif order == app_env.ORDER_DOOR_CLOSE_REVERSED:
+                exec_door_close_reversed()
+                message = app_env.DONE_DOOR_CLOSE
+            else:
+                pass
+        except (EOFError, ConnectionRefusedError):
+            message = app_env.FAILED_OP_DOOR
     if flag:
         line_bot.reply_message(
                 reply_token,
