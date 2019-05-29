@@ -127,7 +127,9 @@ def operate_door(order, reply_token):
                 message = app_env.DONE_DOOR_CLOSE
             else:
                 pass
-        except (EOFError, ConnectionRefusedError):
+        except (EOFError, ConnectionRefusedError) as e:
+            # TODO why blocking below expression?
+            # app.logger.warn(e.message)
             message = app_env.FAILED_OP_DOOR
     if flag:
         line_bot.reply_message(
